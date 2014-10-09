@@ -5,14 +5,15 @@
  */
 package bdpuh.hw2;
 
-import java.io.File;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
 import org.apache.hadoop.io.compress.CompressionOutputStream;
 import org.apache.hadoop.io.compress.GzipCodec;
@@ -22,7 +23,7 @@ import org.apache.hadoop.io.compress.GzipCodec;
  * @author hdadmin
  */
 public class ParallelLocalToHdfsCopy {
-
+    
     static private void usage()
     {
         System.out.println("Usage: This program takes 3 arguments");
@@ -33,6 +34,7 @@ public class ParallelLocalToHdfsCopy {
     
     /**
      * @param args the command line arguments
+     * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
         // Print app bannar
@@ -74,21 +76,68 @@ public class ParallelLocalToHdfsCopy {
             }
         }
         
+        //Streams declaration
+        FSDataInputStream fSDataInputStream = null;
+        FSDataOutputStream fsDataOutputStream = null;
+        CompressionOutputStream compressedOutputStream = null;
         
         for(int i = 0; i < localStatus.length; i++) {
-            // Ignore directories and only copy files
+            // 7)Ignore directories and only copy files
             if(!localStatus[i].isDir())
             {
                 String fileString = srcPath + "/" + localStatus[i].getPath().getName();
-                Path fromPath = new Path(fileString);
-                destFs.copyFromLocalFile(fromPath, destPath);
+                Path fileToRead = new Path(fileString);
+                
+                // Open a File for Reading
+                try {
+                    fSDataInputStream = localFs.open(fileToRead);
+                } catch (IOException ex) {
+                    System.out.println(ex);
+                }
+                
+                // 6) Open a File for Writing .gz file
+                System.out.println(fileToRead.getName());
+                Path compressedFileToWrite = new Path(destPath + "/" + fileToRead.getName() + ".gz");
+
+                try {
+                    fsDataOutputStream = destFs.create(compressedFileToWrite);
+                } catch (IOException ex) {
+                    System.out.println(ex);
+                }
+                
+                // 6) Get Compressed FileOutputStream
+                CompressionCodec compressionCodec = new GzipCodec();
+                try {
+                    compressedOutputStream =
+                            compressionCodec.createOutputStream(fsDataOutputStream);
+                } catch (IOException ex) {
+                    System.out.println(ex);
+                }
+
+                // 5) Copy
+                try {
+                    IOUtils.copyBytes(fSDataInputStream, compressedOutputStream, conf);
+                } catch (IOException ex) {
+                    System.out.println(ex);
+                }
+                
             }
         }
 
+        // Close streams and filesystems
+        try {
+            fSDataInputStream.close();
+            fsDataOutputStream.close();
+            compressedOutputStream.close();
+            localFs.close();
+            destFs.close();
+        } catch (IOException ex) {
+            System.out.println(ex);
+        } catch (NullPointerException e)
+        {
+            System.out.println(e);
+        }
         
-        //Close the filesystems
-        localFs.close();
-        destFs.close();
         System.out.println("Goodbye");
     }
 }
