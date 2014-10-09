@@ -1,7 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Tony Florida
+ * 2014-10-09
+ * JHU - Big Data Processing with Hadoop
+ * Assignment #2
  */
 package bdpuh.hw2;
 
@@ -19,8 +20,8 @@ import org.apache.hadoop.io.compress.CompressionOutputStream;
 import org.apache.hadoop.io.compress.GzipCodec;
 
 /**
- *
- * @author hdadmin
+ * Main class for assignment #2.
+ * Copies files from local file system to Hadoop file system
  */
 public class ParallelLocalToHdfsCopy {
     
@@ -49,7 +50,7 @@ public class ParallelLocalToHdfsCopy {
         }
      
         // 3) Check existance of local directory
-        Configuration conf = new Configuration();
+        final Configuration conf = new Configuration();
         LocalFileSystem localFs = FileSystem.getLocal(conf);
         FileStatus[] localStatus = null;
         Path srcPath = new Path(args[0]);
@@ -77,9 +78,7 @@ public class ParallelLocalToHdfsCopy {
         }
         
         //Streams declaration
-        FSDataInputStream fSDataInputStream = null;
         FSDataOutputStream fsDataOutputStream = null;
-        CompressionOutputStream compressedOutputStream = null;
         
         for(int i = 0; i < localStatus.length; i++) {
             // 7)Ignore directories and only copy files
@@ -89,11 +88,8 @@ public class ParallelLocalToHdfsCopy {
                 Path fileToRead = new Path(fileString);
                 
                 // Open a File for Reading
-                try {
-                    fSDataInputStream = localFs.open(fileToRead);
-                } catch (IOException ex) {
-                    System.out.println(ex);
-                }
+                final FSDataInputStream fSDataInputStream = localFs.open(fileToRead);
+        
                 
                 // 6) Open a File for Writing .gz file
                 System.out.println(fileToRead.getName());
@@ -107,37 +103,40 @@ public class ParallelLocalToHdfsCopy {
                 
                 // 6) Get Compressed FileOutputStream
                 CompressionCodec compressionCodec = new GzipCodec();
-                try {
-                    compressedOutputStream =
-                            compressionCodec.createOutputStream(fsDataOutputStream);
-                } catch (IOException ex) {
-                    System.out.println(ex);
-                }
 
-                // 5) Copy
+                final CompressionOutputStream compressedOutputStream = compressionCodec.createOutputStream(fsDataOutputStream);
+
+                // 5) Copy in parallel
+                new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        try {
+                            IOUtils.copyBytes(fSDataInputStream, compressedOutputStream, conf);
+                        } catch (IOException ex) {
+                            System.out.println(ex);
+                        }
+                    }
+                }).start();
+                
+                // Close streams
                 try {
-                    IOUtils.copyBytes(fSDataInputStream, compressedOutputStream, conf);
-                } catch (IOException ex) {
+                    fSDataInputStream.close();
+                    compressedOutputStream.close();
+                } catch (IOException | NullPointerException ex) {
                     System.out.println(ex);
                 }
-                
             }
         }
 
         // Close streams and filesystems
         try {
-            fSDataInputStream.close();
             fsDataOutputStream.close();
-            compressedOutputStream.close();
             localFs.close();
             destFs.close();
-        } catch (IOException ex) {
+        } catch (IOException | NullPointerException ex) {
             System.out.println(ex);
-        } catch (NullPointerException e)
-        {
-            System.out.println(e);
         }
-        
         System.out.println("Goodbye");
     }
 }
