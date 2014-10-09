@@ -49,9 +49,10 @@ public class ParallelLocalToHdfsCopy {
         // 3) Check existance of local directory
         Configuration conf = new Configuration();
         LocalFileSystem localFs = FileSystem.getLocal(conf);
+        FileStatus[] localStatus = null;
         Path srcPath = new Path(args[0]);
         try {
-            FileStatus[] localStatus = localFs.listStatus(srcPath);
+             localStatus = localFs.listStatus(srcPath);
         } catch (IOException ex) {
             System.out.println("Source directory does not exist.");
             return;
@@ -73,26 +74,21 @@ public class ParallelLocalToHdfsCopy {
             }
         }
         
-        /*
-
-        for(int i = 0; i < fileStatuses.length; i++) {
-            System.out.println(fileStatuses[i].getPath().getName() + " " + (fileStatuses[i].isDir() ? "dir":"file"));
+        
+        for(int i = 0; i < localStatus.length; i++) {
+            // Ignore directories and only copy files
+            if(!localStatus[i].isDir())
+            {
+                String fileString = srcPath + "/" + localStatus[i].getPath().getName();
+                Path fromPath = new Path(fileString);
+                destFs.copyFromLocalFile(fromPath, destPath);
+            }
         }
 
-        fileSystem.copyFromLocalFile(srcPath, destPath);
-        */
-        /*
-        FSDataOutputStream fsDataOutputStream = null;
-        fsDataOutputStream = fileSystem.create(compressedFileToWrite);
-
-        // Get Compressed FileOutputStream
-        CompressionCodec compressionCodec = new GzipCodec();
-        CompressionOutputStream compressedOutputStream = null;
-        compressedOutputStream = compressionCodec.createOutputStream(fsDataOutputStream);
-*/
         
-        //Close the filesystem
-        //fileSystem.close();
+        //Close the filesystems
+        localFs.close();
+        destFs.close();
         System.out.println("Goodbye");
     }
 }
