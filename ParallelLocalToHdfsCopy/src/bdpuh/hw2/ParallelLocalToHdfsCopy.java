@@ -16,6 +16,7 @@ import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.io.compress.CompressionCodec;
+import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.io.compress.CompressionOutputStream;
 import org.apache.hadoop.io.compress.GzipCodec;
 
@@ -24,6 +25,10 @@ import org.apache.hadoop.io.compress.GzipCodec;
  * Copies files from local file system to Hadoop file system
  */
 public class ParallelLocalToHdfsCopy {
+    
+    static {
+        Configuration.addDefaultResource("hadoop/config/demo/my-app-conf.xml");
+    }
     
     static private void usage()
     {
@@ -47,6 +52,7 @@ public class ParallelLocalToHdfsCopy {
         if(args.length != 3)
         {
             usage();
+            return;
         }
      
         // 3) Check existance of local directory
@@ -63,6 +69,7 @@ public class ParallelLocalToHdfsCopy {
 
         // 4) Checks existance of remote directory
         FileSystem destFs = FileSystem.get(conf);
+        System.out.println(args[1]);
         Path destPath = new Path(args[1]);
         try {
             FileStatus[] destStatus = destFs.listStatus(destPath);
@@ -77,9 +84,6 @@ public class ParallelLocalToHdfsCopy {
             }
         }
         
-        //Streams declaration
-        FSDataOutputStream fsDataOutputStream = null;
-        
         for(int i = 0; i < localStatus.length; i++) {
             // 7)Ignore directories and only copy files
             if(!localStatus[i].isDir())
@@ -89,23 +93,43 @@ public class ParallelLocalToHdfsCopy {
                 
                 // Open a File for Reading
                 final FSDataInputStream fSDataInputStream = localFs.open(fileToRead);
-        
-                
+   
                 // 6) Open a File for Writing .gz file
                 System.out.println(fileToRead.getName());
                 Path compressedFileToWrite = new Path(destPath + "/" + fileToRead.getName() + ".gz");
 
-                try {
-                    fsDataOutputStream = destFs.create(compressedFileToWrite);
-                } catch (IOException ex) {
-                    System.out.println(ex);
+                FSDataOutputStream fsDataOutputStream = destFs.create(compressedFileToWrite);
+                if(destFs == null)
+                {
+                    System.out.println("Destfs is null");
+                }
+                
+                if(compressedFileToWrite == null)
+                {
+                    System.out.println("compressedFileToWrite is null");
+                }
+
+                if(fsDataOutputStream == null)
+                {
+                    System.out.println("fsDataOutputStream is null");
                 }
                 
                 // 6) Get Compressed FileOutputStream
-                CompressionCodec compressionCodec = new GzipCodec();
+                CompressionCodecFactory ccf = new CompressionCodecFactory(conf);
+                CompressionCodec compressionCodec = ccf.getCodecByClassName(GzipCodec.class.getName());
 
                 final CompressionOutputStream compressedOutputStream = compressionCodec.createOutputStream(fsDataOutputStream);
 
+                if(compressedOutputStream == null)
+                {
+                    System.out.println("compressedOutputStream is null");
+                }
+                
+                if(compressionCodec == null)
+                {
+                    System.out.println("compressionCodec is null");
+                }
+                
                 // 5) Copy in parallel
                 new Thread(new Runnable()
                 {
@@ -119,19 +143,22 @@ public class ParallelLocalToHdfsCopy {
                     }
                 }).start();
                 
-                // Close streams
-                try {
-                    fSDataInputStream.close();
-                    compressedOutputStream.close();
-                } catch (IOException | NullPointerException ex) {
-                    System.out.println(ex);
+                if(i - 1 >= localStatus.length)
+                {
+                    // Close streams when done
+                    try {
+                        fsDataOutputStream.close();
+                        fSDataInputStream.close();
+                        compressedOutputStream.close();
+                    } catch (IOException | NullPointerException ex) {
+                        System.out.println(ex);
+                    }
                 }
             }
         }
 
-        // Close streams and filesystems
+        // Close filesystems
         try {
-            fsDataOutputStream.close();
             localFs.close();
             destFs.close();
         } catch (IOException | NullPointerException ex) {
