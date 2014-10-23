@@ -1,7 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Tony Florida
+ * 2014-10-22
+ * JHU - Big Data Processing with Hadoop
+ * Assignment 3
  */
 package bdpuh.hw3;
 
@@ -25,14 +26,14 @@ public class RatingDistribution {
     public static void main(String[] args) {
         Job wordCountJob = null;
         
-        Configuration conf = new Configuration(); //mapred
+        Configuration conf = new Configuration();
         try{
-            wordCountJob = Job.getInstance(conf, "WordCount");
+            wordCountJob = Job.getInstance(conf, "RatingDistribution");
         } catch (IOException ex) {
             System.out.println(ex);
         }
         
-            //Specify the input path
+        //Specify the input path
         try{
             FileInputFormat.addInputPath(wordCountJob, new Path(args[0]));
         } catch (IOException ex) {
