@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package wordcount;
+package bdpuh.hw3;
 
 import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.Reducer;
  *
  * @author hdadmin
  */
-public class WordCountReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
+public class RatingDistributionReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
     int i = 0;
     IntWritable count = new IntWritable();
     

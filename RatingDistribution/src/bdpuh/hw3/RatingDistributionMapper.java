@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package wordcount;
+package bdpuh.hw3;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -17,7 +17,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  *
  * @author hdadmin
  */
-public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
+public class RatingDistributionMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
     IntWritable one = new IntWritable(1);
     Text word = new Text();
     

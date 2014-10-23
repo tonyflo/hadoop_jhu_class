@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package wordcount;
+package bdpuh.hw3;
 
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
@@ -17,7 +17,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-public class WordCount {
+public class RatingDistribution {
 
     /**
      * @param args the command line arguments
@@ -43,11 +43,11 @@ public class WordCount {
         wordCountJob.setInputFormatClass(TextInputFormat.class);
         
         // set the mapper and reducer class
-        wordCountJob.setMapperClass(WordCountMapper.class);
-        wordCountJob.setReducerClass(WordCountReducer.class);
+        wordCountJob.setMapperClass(RatingDistributionMapper.class);
+        wordCountJob.setReducerClass(RatingDistributionReducer.class);
         
         // set the jar file
-        wordCountJob.setJarByClass(wordcount.WordCount.class);
+        wordCountJob.setJarByClass(bdpuh.hw3.RatingDistribution.class);
         
         // set the output path
         FileOutputFormat.setOutputPath(wordCountJob, new Path(args[1]));
