@@ -18,7 +18,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-public class RatingAverage {
+public class MovieRatings {
 
     /**
      * @param args the command line arguments
@@ -28,7 +28,7 @@ public class RatingAverage {
         
         Configuration conf = new Configuration();
         try{
-            wordCountJob = Job.getInstance(conf, "RatingDistribution");
+            wordCountJob = Job.getInstance(conf, "MovieRatings");
         } catch (IOException ex) {
             System.out.println(ex);
         }
@@ -44,11 +44,11 @@ public class RatingAverage {
         wordCountJob.setInputFormatClass(TextInputFormat.class);
         
         // set the mapper and reducer class
-        wordCountJob.setMapperClass(RatingAverageMapper.class);
-        wordCountJob.setReducerClass(RatingAverageReducer.class);
+        wordCountJob.setMapperClass(MovieRatingsMapper.class);
+        wordCountJob.setReducerClass(MovieRatingsReducer.class);
         
         // set the jar file
-        wordCountJob.setJarByClass(bdpuh.hw4.RatingAverage.class);
+        wordCountJob.setJarByClass(bdpuh.hw4.MovieRatings.class);
         
         // set the output path
         FileOutputFormat.setOutputPath(wordCountJob, new Path(args[1]));

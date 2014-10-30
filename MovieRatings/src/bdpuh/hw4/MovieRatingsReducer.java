@@ -5,7 +5,7 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class RatingAverageReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
+public class MovieRatingsReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
     int i = 0;
     IntWritable count = new IntWritable();
     
