@@ -28,7 +28,7 @@ public class MovieRatings {
         
         Configuration conf = new Configuration();
         try{
-            wordCountJob = Job.getInstance(conf, "MovieRatings");
+            wordCountJob = Job.getInstance(conf, "MovieRatingsTest");
         } catch (IOException ex) {
             System.out.println(ex);
         }
@@ -58,7 +58,7 @@ public class MovieRatings {
         
         // set the output key and value class
         wordCountJob.setOutputKeyClass(Text.class);
-        wordCountJob.setOutputValueClass(IntWritable.class);
+        wordCountJob.setOutputValueClass(Rating.class);
         
         try {
             wordCountJob.waitForCompletion(true);

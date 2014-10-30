@@ -1,15 +1,14 @@
 package bdpuh.hw4;
 
 import java.io.IOException;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
-public class MovieRatingsMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
-    IntWritable one = new IntWritable(1);
-    Text rating = new Text();
+public class MovieRatingsMapper extends Mapper<LongWritable, Text, Text, Rating>{
+    
+    
     
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -23,11 +22,17 @@ public class MovieRatingsMapper extends Mapper<LongWritable, Text, Text, IntWrit
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String line = value.toString();
-        //StringTokenizer tokenizer = new StringTokenizer(line);
         String lineArray[] = line.split("\t");
-        //while(tokenizer.hasMoreTokens()) {
-            rating.set(lineArray[2]);
-            context.write(rating, one);
-        //}
+        
+        //Set Value: rating data
+        Rating rating = new Rating();
+        rating.setUid(Integer.parseInt(lineArray[0]));
+        rating.setRating(Integer.parseInt(lineArray[2]));
+        
+        //Set Key: movie id
+        Text movie_id = new Text();
+        movie_id.set(lineArray[1]);
+        
+        context.write(movie_id, rating);
     }
 }

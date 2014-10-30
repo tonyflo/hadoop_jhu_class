@@ -5,17 +5,19 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
-public class MovieRatingsReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
-    int i = 0;
+public class MovieRatingsReducer extends Reducer<Text, Rating, Text, IntWritable>{
+
     IntWritable count = new IntWritable();
+    int sum_rating = 0;
     
     @Override
-    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-        i = 0;
-        for(IntWritable val : values) {
-            i = i + 1;
+    protected void reduce(Text key, Iterable<Rating> ratings, Context context) throws IOException, InterruptedException {
+
+        for(Rating rating : ratings)
+        {
+            sum_rating += rating.getRating();
         }
-        count.set(i);
+        count.set(sum_rating);
         context.write(key, count);
     }
 }
