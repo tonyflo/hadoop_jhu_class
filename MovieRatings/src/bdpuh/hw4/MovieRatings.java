@@ -28,7 +28,7 @@ public class MovieRatings {
         
         Configuration conf = new Configuration();
         try{
-            wordCountJob = Job.getInstance(conf, "MovieRatingsTestNew");
+            wordCountJob = Job.getInstance(conf, "MovieRatingsTest");
         } catch (IOException ex) {
             System.out.println(ex);
         }
@@ -39,6 +39,9 @@ public class MovieRatings {
         } catch (IOException ex) {
             System.out.println(ex);
         }
+        
+        //set reducer
+        wordCountJob.setPartitionerClass(MovieRatingsPartitioner.class);
         
         // set the input data format
         wordCountJob.setInputFormatClass(TextInputFormat.class);
@@ -59,6 +62,9 @@ public class MovieRatings {
         // set the output key and value class
         wordCountJob.setOutputKeyClass(Text.class);
         wordCountJob.setOutputValueClass(IntWritable.class);
+        
+        // set number of reducers
+        wordCountJob.setNumReduceTasks(2);
         
         try {
             wordCountJob.waitForCompletion(true);
