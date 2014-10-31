@@ -9,7 +9,6 @@ package bdpuh.hw4;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
 import org.apache.hadoop.mapreduce.Job;
@@ -28,7 +27,7 @@ public class MovieRatings {
         
         Configuration conf = new Configuration();
         try{
-            wordCountJob = Job.getInstance(conf, "MovieRatingsTest");
+            wordCountJob = Job.getInstance(conf, "MovieRatings");
         } catch (IOException ex) {
             System.out.println(ex);
         }
@@ -61,7 +60,7 @@ public class MovieRatings {
         
         // set the output key and value class
         wordCountJob.setOutputKeyClass(Text.class);
-        wordCountJob.setOutputValueClass(IntWritable.class);
+        wordCountJob.setOutputValueClass(Text.class);
         
         // set number of reducers
         wordCountJob.setNumReduceTasks(2);
