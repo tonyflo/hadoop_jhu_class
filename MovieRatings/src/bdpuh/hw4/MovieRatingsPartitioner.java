@@ -21,7 +21,7 @@ public class MovieRatingsPartitioner extends Partitioner<Text, Text> {
     @Override
     public int getPartition(Text key, Text value, int numReducers) {
         int int_key = Integer.parseInt(key.toString());
-        if(int_key >= (1682/2)) {
+        if(int_key >= 500) {
             return 0;
         } else {
             return 1;
