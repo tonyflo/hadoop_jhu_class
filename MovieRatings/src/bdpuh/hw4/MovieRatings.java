@@ -26,6 +26,14 @@ public class MovieRatings {
         Job wordCountJob = null;
         
         Configuration conf = new Configuration();
+        
+        //Job input compression
+        //conf.setStrings("io.compression.codecs", "org.apache.hadoop.io.compress.GzipCodec");
+        
+        // Job output compression
+        conf.setBoolean("mapreduce.output.compress", true);
+        conf.setStrings("mapreduce.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
+        
         try{
             wordCountJob = Job.getInstance(conf, "MovieRatings");
         } catch (IOException ex) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Reducer;
 
 public class MovieRatingsReducer extends Reducer<Text, Text, Text, Text>{
@@ -60,5 +61,8 @@ public class MovieRatingsReducer extends Reducer<Text, Text, Text, Text>{
         value.set(str);
         
         context.write(key, value);
+        
+        Counter counter = context.getCounter(MovieRatingsCounter.UNIQUE_MOVIES);
+        counter.increment(1);
     }
 }
