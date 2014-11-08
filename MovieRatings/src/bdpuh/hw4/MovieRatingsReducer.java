@@ -1,8 +1,16 @@
 package bdpuh.hw4;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.zip.GZIPInputStream;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -55,10 +63,22 @@ public class MovieRatingsReducer extends Reducer<Text, Text, Text, Text>{
         //calculate average
         average_rating = (double) running_rating_sum / num_ratings;
    
-        //formate value string
+        //format value string
         String str = ""+ average_rating + "\t" + unique_ratings + "\t" + running_rating_sum;
-        
         value.set(str);
+        
+        //String movie_item = context.getConfiguration().get("join");
+        //System.out.println("*** Movie item is " + movie_item);
+                
+        File movieItemFile = new File("/movie-and-ratings/u.item.gz");
+        InputStream stream = new FileInputStream(movieItemFile);
+        GZIPInputStream gzis = new GZIPInputStream(stream);
+        BufferedReader br = new BufferedReader(new InputStreamReader(gzis));
+        String line = "";
+        while((line = br.readLine()) != null && line.length()!=0)
+        {
+            
+        }
         
         context.write(key, value);
         

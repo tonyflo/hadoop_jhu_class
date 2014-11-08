@@ -6,13 +6,18 @@
  */
 package bdpuh.hw4;
 
+import java.io.File;
 import java.io.IOException;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -31,10 +36,11 @@ public class MovieRatings {
         //conf.setStrings("io.compression.codecs", "org.apache.hadoop.io.compress.GzipCodec");
         
         // Job output compression
-        conf.setBoolean("mapreduce.output.compress", true);
-        conf.setBoolean("mapred.output.compress", true);
-        conf.setStrings("mapreduce.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
-        conf.setStrings("mapred.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");        
+        //conf.setBoolean("mapreduce.output.compress", true);
+        //conf.setBoolean("mapred.output.compress", true);
+        //conf.setStrings("mapreduce.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
+        //conf.setStrings("mapred.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");        
+        
         
         try{
             wordCountJob = Job.getInstance(conf, "MovieRatings");
@@ -48,7 +54,7 @@ public class MovieRatings {
         } catch (IOException ex) {
             System.out.println(ex);
         }
-        
+
         //set reducer
         wordCountJob.setPartitionerClass(MovieRatingsPartitioner.class);
         
