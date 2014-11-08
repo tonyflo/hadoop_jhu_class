@@ -41,7 +41,6 @@ public class MovieRatings {
         //conf.setStrings("mapreduce.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");
         //conf.setStrings("mapred.output.compression.codec", "org.apache.hadoop.io.compress.GzipCodec");        
         
-        
         try{
             wordCountJob = Job.getInstance(conf, "MovieRatings");
         } catch (IOException ex) {

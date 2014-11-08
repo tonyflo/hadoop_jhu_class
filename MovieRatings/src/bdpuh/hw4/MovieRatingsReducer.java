@@ -70,15 +70,15 @@ public class MovieRatingsReducer extends Reducer<Text, Text, Text, Text>{
         //String movie_item = context.getConfiguration().get("join");
         //System.out.println("*** Movie item is " + movie_item);
                 
-        File movieItemFile = new File("/movie-and-ratings/u.item.gz");
-        InputStream stream = new FileInputStream(movieItemFile);
-        GZIPInputStream gzis = new GZIPInputStream(stream);
-        BufferedReader br = new BufferedReader(new InputStreamReader(gzis));
-        String line = "";
-        while((line = br.readLine()) != null && line.length()!=0)
-        {
-            
-        }
+//        File movieItemFile = new File("/movie-and-ratings/u.item.gz");
+//        InputStream stream = new FileInputStream(movieItemFile);
+//        GZIPInputStream gzis = new GZIPInputStream(stream);
+//        BufferedReader br = new BufferedReader(new InputStreamReader(gzis));
+//        String line = "";
+//        while((line = br.readLine()) != null && line.length()!=0)
+//        {
+//            
+//        }
         
         context.write(key, value);
         
