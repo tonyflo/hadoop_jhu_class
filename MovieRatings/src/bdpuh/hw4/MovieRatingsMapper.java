@@ -26,16 +26,10 @@ public class MovieRatingsMapper extends Mapper<LongWritable, Text, Text, Text>{
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {        
         
         String filename = ((FileSplit) context.getInputSplit()).getPath().getName();
-        String ext = filename.substring(2);
-        
-        System.out.println("*** Filename is " + filename + "and ext is " + ext);
-        
+        String ext = filename.substring(2);        
         
         if(!ext.equals(".data.gz"))
         {
-            // Remember the name of the movie item file
-            context.getConfiguration().set("join", filename);
-            
             // files other than *.data are not part of the dataset
             return;
         }

@@ -3,8 +3,11 @@ package bdpuh.hw4;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +62,14 @@ public class MovieRatingsReducer extends Reducer<Text, Text, Text, Text>{
         //read u.item
         FileSystem fs = FileSystem.get(context.getConfiguration());
         Path file = new Path("/movie-and-ratings/u.item");
+        //Path file = new Path("hdfs://localhost:9000/movie-and-ratings/u.item");
+        
+        //InputStream fileStream = new FileInputStream("hdfs://localhost:9000/movie-and-ratings/u.item.gz");
+        //InputStream gzipStream = new GZIPInputStream(fileStream);
+        //Reader decoder = new InputStreamReader(gzipStream, "UTF-8");
+        
         BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(file)));
+        //BufferedReader br = new BufferedReader(decoder);
         String line;
         line = br.readLine();
         while(line != null){
@@ -72,7 +82,6 @@ public class MovieRatingsReducer extends Reducer<Text, Text, Text, Text>{
         {
             // parse this movie's info
             String movie[] = al.get(i).toString().split("\\|");
-            System.out.println("MUVE: " + movie[0] + " vs " + key.toString() + " : Size= " + al.size() + " KKK " + al.get(i).toString());
             if(movie[0].equals(key.toString()))
             {
                 title = movie[1];
@@ -81,6 +90,7 @@ public class MovieRatingsReducer extends Reducer<Text, Text, Text, Text>{
             }
         }
         
+        //sum and count
         for(Text val : values) {
             String rating = val.toString();
             String rate[] = rating.split("\t");

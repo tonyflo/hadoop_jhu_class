@@ -3,11 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/hdadmin/NetBeansProjects/MovieRatings/src/bdpuh/hw4/MovieRatingsReducer.java</file>
             <file>file:/home/hdadmin/NetBeansProjects/MovieRatings/src/bdpuh/hw4/MovieRatings.java</file>
+            <file>file:/home/hdadmin/NetBeansProjects/MovieRatings/src/bdpuh/hw4/MovieRatingsReducer.java</file>
             <file>file:/home/hdadmin/NetBeansProjects/MovieRatings/src/bdpuh/hw4/MovieRatingsPartitioner.java</file>
             <file>file:/home/hdadmin/NetBeansProjects/MovieRatings/src/bdpuh/hw4/MovieRatingsMapper.java</file>
-            <file>file:/home/hdadmin/NetBeansProjects/MovieRatings/src/bdpuh/hw4/MovieRatingsCounter.java</file>
         </group>
     </open-files>
 </project-private>
