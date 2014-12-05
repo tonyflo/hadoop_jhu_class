@@ -133,6 +133,12 @@ public class UserAdmin {
         Get get = new Get(toBytes(row_id));
         get.addColumn(toBytes("creds"), toBytes("password"));
         Result result = hTable.get(get);
+        
+        if(result.value() == null)
+        {
+            return;
+        }
+        
         String given_password = Bytes.toString(result.value());
         
         if(given_password.equals(password))
@@ -147,8 +153,6 @@ public class UserAdmin {
 
             hTable.put(put);
         }
-       
-
     }
 
     private static void print(Result result)
