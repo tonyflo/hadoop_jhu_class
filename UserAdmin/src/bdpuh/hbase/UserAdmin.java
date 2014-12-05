@@ -111,6 +111,7 @@ public class UserAdmin {
         Scan scan = new Scan();
         ResultScanner scanner = hTable.getScanner(scan);
         for(Result rr = scanner.next(); rr != null; rr = scanner.next()) {
+            System.out.println("--------------------------");
             print(rr);
         }
     }
@@ -129,29 +130,31 @@ public class UserAdmin {
         String time = timeFormat.format(date_obj);
         
         //Check if password matches
-        String status = "false";
-        
         Get get = new Get(toBytes(row_id));
         get.addColumn(toBytes("creds"), toBytes("password"));
         Result result = hTable.get(get);
-        System.out.println("PASSWORD: " + result.toString());
+        String given_password = Bytes.toString(result.value());
+        
+        if(given_password.equals(password))
+        {
+            //Update table
+            Put put = new Put(toBytes(row_id));
+
+            put.add(toBytes("lastlogin"), toBytes("ip"), toBytes(ip));
+            put.add(toBytes("lastlogin"), toBytes("date"), toBytes(date));
+            put.add(toBytes("lastlogin"), toBytes("time"), toBytes(time));
+            put.add(toBytes("lastlogin"), toBytes("success"), toBytes("yes"));
+
+            hTable.put(put);
+        }
        
-        //Update table
-        Put put = new Put(toBytes(row_id));
-        
-        put.add(toBytes("lastlogin"), toBytes("ip"), toBytes(ip));
-        put.add(toBytes("lastlogin"), toBytes("date"), toBytes(date));
-        put.add(toBytes("lastlogin"), toBytes("time"), toBytes(time));
-        put.add(toBytes("lastlogin"), toBytes("success"), toBytes(status));
-        
-        hTable.put(put);
+
     }
 
     private static void print(Result result)
     {
         //creds
-        System.out.println("--------------------------");
-        System.out.println("RowID: " + Bytes.toString(result.getRow()));
+        System.out.println("rowid=" + Bytes.toString(result.getRow()));
         byte[] email = result.getValue(toBytes("creds"), toBytes("email"));
         System.out.println("creds:email=" + Bytes.toString(email));
         byte[] password = result.getValue(toBytes("creds"), toBytes("password"));
@@ -167,6 +170,15 @@ public class UserAdmin {
         byte[] security_answer = result.getValue(toBytes("prefs"), toBytes("security_answer"));
         System.out.println("prefs:security_answer=" +Bytes.toString(security_answer));
 
+        //lastlogin
+        byte[] ip = result.getValue(toBytes("lastlogin"), toBytes("ip"));
+        System.out.println("last_login:ip=" +Bytes.toString(ip));
+        byte[] date = result.getValue(toBytes("lastlogin"), toBytes("date"));
+        System.out.println("last_login:date=" +Bytes.toString(date));
+        byte[] time = result.getValue(toBytes("lastlogin"), toBytes("time"));
+        System.out.println("last_login:time=" +Bytes.toString(time));
+        byte[] success = result.getValue(toBytes("lastlogin"), toBytes("success"));
+        System.out.println("last_login:success=" +Bytes.toString(success));
     }
 
     /**
