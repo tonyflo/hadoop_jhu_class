@@ -1,14 +1,19 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Tony Florida
+ * 2014-12-04
+ * JHU - Big Data Processing with Hadoop
+ * HBase Project
  */
 package bdpuh.hbase;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -53,15 +58,32 @@ public class UserAdmin {
     }
     
     // Command line commands
-    private static void put(String row_id, String email, String password) throws IOException
+    private static void put(String[] args) throws IOException
     {
-        Configuration conf = HBaseConfiguration.create();
-        HTable hTable = new HTable(conf, "User");
+        String row_id = args[1];
+        String email = args[2];
+        String password = args[3];
+        String status = args[4];
+        String date_of_birth = args[5];
+        String security_question = args[6];
+        String security_answer = args[7];
+        
+        //validate input
+        if(!status.equals("married") && !status.equals("single"))
+        {
+            System.out.println("Error: status must be 'single' or 'married'");
+            return;
+        }
         
         Put put = new Put(toBytes(row_id));
         
         put.add(toBytes("creds"), toBytes("email"), toBytes(email));
-        put.add(toBytes("creds"), toBytes("email"), toBytes(password));
+        put.add(toBytes("creds"), toBytes("password"), toBytes(password));
+        put.add(toBytes("prefs"), toBytes("status"), toBytes(status));
+        put.add(toBytes("prefs"), toBytes("date_of_birth"), toBytes(date_of_birth));
+        put.add(toBytes("prefs"), toBytes("security_question"), toBytes(security_question));
+        put.add(toBytes("prefs"), toBytes("security_answer"), toBytes(security_answer));
+        
         hTable.put(put);
     }
     
@@ -71,18 +93,63 @@ public class UserAdmin {
         hTable.delete(delete);
     }
     
+    private static void show(String row_id) throws IOException
+    {
+        Scan scan = new Scan();
+        ResultScanner scanner = hTable.getScanner(scan);
+        for(Result rr = scanner.next(); rr != null; rr = scanner.next()) {
+            if(Bytes.toString(rr.getRow()).equals(row_id))
+            {
+                print(rr);
+                break;
+            }
+        }
+    }
+    
     private static void listall() throws IOException
     {
-
         Scan scan = new Scan();
         ResultScanner scanner = hTable.getScanner(scan);
         for(Result rr = scanner.next(); rr != null; rr = scanner.next()) {
             print(rr);
         }
     }
+    
+    private static void login(String[] args) throws IOException
+    {
+        String row_id = args[1];
+        String password = args[2];
+        String ip = args[3];
+        
+        // Get date and time
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:SS");
+        Date date_obj = new Date();
+        String date = dateFormat.format(date_obj);
+        String time = timeFormat.format(date_obj);
+        
+        //Check if password matches
+        String status = "false";
+        
+        Get get = new Get(toBytes(row_id));
+        get.addColumn(toBytes("creds"), toBytes("password"));
+        Result result = hTable.get(get);
+        System.out.println("PASSWORD: " + result.toString());
+       
+        //Update table
+        Put put = new Put(toBytes(row_id));
+        
+        put.add(toBytes("lastlogin"), toBytes("ip"), toBytes(ip));
+        put.add(toBytes("lastlogin"), toBytes("date"), toBytes(date));
+        put.add(toBytes("lastlogin"), toBytes("time"), toBytes(time));
+        put.add(toBytes("lastlogin"), toBytes("success"), toBytes(status));
+        
+        hTable.put(put);
+    }
 
     private static void print(Result result)
     {
+        //creds
         System.out.println("--------------------------");
         System.out.println("RowID: " + Bytes.toString(result.getRow()));
         byte[] email = result.getValue(toBytes("creds"), toBytes("email"));
@@ -90,6 +157,16 @@ public class UserAdmin {
         byte[] password = result.getValue(toBytes("creds"), toBytes("password"));
         System.out.println("creds:password=" +Bytes.toString(password));
         
+        //prefs
+        byte[] status = result.getValue(toBytes("prefs"), toBytes("status"));
+        System.out.println("prefs:status=" +Bytes.toString(status));
+        byte[] date_of_birth = result.getValue(toBytes("prefs"), toBytes("date_of_birth"));
+        System.out.println("prefs:date_of_birth=" +Bytes.toString(date_of_birth));
+        byte[] security_question = result.getValue(toBytes("prefs"), toBytes("security_question"));
+        System.out.println("prefs:security_question=" +Bytes.toString(security_question));
+        byte[] security_answer = result.getValue(toBytes("prefs"), toBytes("security_answer"));
+        System.out.println("prefs:security_answer=" +Bytes.toString(security_answer));
+
     }
 
     /**
@@ -110,7 +187,7 @@ public class UserAdmin {
                 {
                     break;
                 }
-                put(args[1], args[2], args[3]);
+                put(args);
 
                 break;
             case "delete":
@@ -128,6 +205,7 @@ public class UserAdmin {
                 {
                     break;
                 }
+                show(args[1]);
 
                 break;
             case "listall":
@@ -146,6 +224,7 @@ public class UserAdmin {
                 {
                     break;
                 }
+                login(args);
 
                 break;
             default:
@@ -154,7 +233,7 @@ public class UserAdmin {
                 {
                     break;
                 }
-
+                
                 break;
         }
         
